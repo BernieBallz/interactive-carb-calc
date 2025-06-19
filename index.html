@@ -69,6 +69,23 @@
             overflow: hidden;
             transition: max-height 0.5s ease-in-out;
         }
+        /* Custom styles for guide content to replace 'prose' */
+        .guide-text h4 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            margin-top: 1rem;
+        }
+        .guide-text p, .guide-text li {
+            color: #374151; /* text-gray-700 */
+        }
+         .guide-text ul {
+            list-style-position: inside;
+            list-style-type: disc;
+            padding-left: 0.5rem;
+        }
+        .guide-text ul li {
+            margin-bottom: 0.25rem;
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
@@ -76,7 +93,7 @@
     <div class="w-full max-w-2xl">
         <header class="text-center mb-6">
             <h1 class="text-2xl font-bold text-gray-800">Interactive Carbonation Calculator</h1>
-            <p class="text-gray-600 mt-1">For Force Carbonation</p>
+            <p class="text-gray-600 mt-1">For Homebrewing</p>
         </header>
 
         <div class="calculator-body rounded-lg p-4 sm:p-8">
@@ -169,28 +186,30 @@
         
         <!-- Accordion Guide -->
         <div class="w-full mx-auto mt-6">
-            <div id="guide-accordion" class="border border-gray-300 rounded-lg bg-white shadow-sm">
-                <button id="guide-toggle" class="w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 focus:outline-none rounded-lg">
+            <div id="guide-accordion" class="border border-gray-300 rounded-lg bg-white shadow-sm overflow-hidden">
+                <button id="guide-toggle" class="w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 focus:outline-none">
                     <span class="font-semibold text-gray-800">Operational Guide</span>
                     <svg id="guide-icon" class="w-5 h-5 text-gray-600 transform transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
-                <div id="guide-content" class="p-6 border-t border-gray-200 prose max-w-none">
-                    <h4 class="font-bold">1. Setting Your Target Carbonation</h4>
-                    <p>First, decide how carbonated you want your final beer to be. You can do this in two ways:</p>
-                    <ul>
-                        <li><strong>By Style (Recommended):</strong> Select a beer style from the dropdown. The calculator will automatically set a typical target carbonation level (measured in Volumes of CO₂).</li>
-                        <li><strong>Manual Mode:</strong> If you know the specific pressure and temperature you'll be using, you can set them with the sliders. The calculator uses these values to determine the target carbonation based on the laws of physics (Henry's Law).</li>
-                    </ul>
-                    <h4 class="font-bold mt-4">2. Calculating CO₂ to Add by Weight</h4>
-                    <p>This section calculates the exact weight of CO₂ you need to add to your vessel (e.g., a keg or unitank) to hit your target.</p>
-                    <ul>
-                        <li><strong>Batch Volume:</strong> Enter the total volume of your beer in liters. This is used to scale the calculation for your entire batch.</li>
-                        <li><strong>Final Fermentation Temp (°C):</strong> This is a crucial input for accuracy. Enter the <strong>highest temperature</strong> your beer reached after active fermentation was complete. This allows the calculator to estimate the 'Residual CO₂'—the CO₂ that is already naturally dissolved in your beer.</li>
-                    </ul>
-                    <h4 class="font-bold mt-4">The Final Calculation</h4>
-                    <p>The <strong>Total CO₂ to Add</strong> value is your final answer. It is calculated by taking your <strong>Target CO₂</strong>, subtracting the <strong>Residual CO₂</strong>, and then multiplying by your <strong>Batch Volume</strong>. This gives you the precise weight of CO₂ to add.</p>
+                <div id="guide-content" class="px-6 pb-6 border-t border-gray-200">
+                    <div class="guide-text pt-4">
+                        <h4>1. Setting Your Target Carbonation</h4>
+                        <p>First, decide how carbonated you want your final beer to be. You can do this in two ways:</p>
+                        <ul>
+                            <li><strong>By Style (Recommended):</strong> Select a beer style from the dropdown. The calculator will automatically set a typical target carbonation level (measured in Volumes of CO₂).</li>
+                            <li><strong>Manual Mode:</strong> If you know the specific pressure and temperature you'll be using, you can set them with the sliders. The calculator uses these values to determine the target carbonation based on the laws of physics (Henry's Law).</li>
+                        </ul>
+                        <h4>2. Calculating CO₂ to Add by Weight</h4>
+                        <p>This section calculates the exact weight of CO₂ you need to add to your vessel (e.g., a keg or unitank) to hit your target.</p>
+                        <ul>
+                            <li><strong>Batch Volume:</strong> Enter the total volume of your beer in liters. This is used to scale the calculation for your entire batch.</li>
+                            <li><strong>Final Fermentation Temp (°C):</strong> This is a crucial input for accuracy. Enter the <strong>highest temperature</strong> your beer reached after active fermentation was complete. This allows the calculator to estimate the 'Residual CO₂'—the CO₂ that is already naturally dissolved in your beer.</li>
+                        </ul>
+                        <h4>The Final Calculation</h4>
+                        <p>The <strong>Total CO₂ to Add</strong> value is your final answer. It is calculated by taking your <strong>Target CO₂</strong>, subtracting the <strong>Residual CO₂</strong>, and then multiplying by your <strong>Batch Volume</strong>. This gives you the precise weight of CO₂ to add.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -218,7 +237,6 @@
         const guideToggle = document.getElementById('guide-toggle');
         const guideContent = document.getElementById('guide-content');
         
-        // Accurate conversion factor for CO2 volumes to g/L
         const CO2_VOL_TO_GL = 1.964;
 
         // --- CALCULATION FUNCTIONS ---
@@ -227,8 +245,7 @@
             const tempF = tempC * 1.8 + 32;
             const co2VolsAtAtm = 3.0378 - (0.050062 * tempF) + (0.00026555 * tempF * tempF);
             const finalVols = co2VolsAtAtm * (pressurePsi + 14.695) / 14.695;
-            const co2Gl = finalVols * CO2_VOL_TO_GL;
-            return { co2Vol: finalVols, co2Gl: co2Gl };
+            return { co2Vol: finalVols, co2Gl: finalVols * CO2_VOL_TO_GL };
         }
         
         function calculatePressure(tempC, co2Vol) {
@@ -318,7 +335,7 @@
         // --- EVENT LISTENERS ---
 
         pressureSlider.addEventListener('input', () => {
-            beerStyleSelect.value = ""; // Switch to manual mode
+            beerStyleSelect.value = "";
             updateAllCalculations();
         });
         temperatureSlider.addEventListener('input', () => {
